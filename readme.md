@@ -12,8 +12,8 @@ Then paste your calendar url to cal.bruck.me to get rid of all unnecessary title
 
 Now you can subscribe your TUM calendar to your Google calendar. When you subscribe, your calendar automatically will be updated. But the problem is you can not delete or hide events from subscription, rigth? ( Maybe there is a way but I don't know it)
 
-Thats way we will also add our ics file to our Google calendar. You can download it if you paste to URL bar. 
-ICS file contains events but they are not updated automatically.
+That's way we will also add our ics file to our Google calendar. You can download it if you paste to URL bar. 
+ICS file contains events, but they are not updated automatically.
 
 So we have 2 problem :
 1. We need to delete some courses from our calendar
