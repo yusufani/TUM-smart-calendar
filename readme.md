@@ -9,7 +9,7 @@ In this repo I will guide you to customizing your TUM Calendar.
 
 Firstly, you need to your Calendar ics link. You can find it like https://wiki.tum.de/display/docs/Personal+Calendar
 
-Then paste your calendar url to cal.bruck.me to get rid of all unnecessary titles. 
+Then paste your calendar url to https://cal.bruck.me to get rid of all unnecessary titles. 
 
 Now you can subscribe your TUM calendar to your Google calendar. When you subscribe, your calendar automatically will be updated. But the problem is you can not delete or hide events from subscription, rigth? ( Maybe there is a way but I don't know it)
 
