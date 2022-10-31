@@ -30,7 +30,8 @@ You can add your courses names in list also you can define allowed date like in 
 //['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 function get_unwanted_courses(){
   return  [  'ML','Grundlegende Mathematische Methoden für Imaging und Visualisierung','Cloud-Based Data Processing'
-  ,'3D Scanning & Motion Capture' , 'Fragestunde: ML' , {'course' : 'Einführung in Quantum Computing', 'Allowed' :  [3.0] }]
+  ,'3D Scanning & Motion Capture' , 'Fragestunde: ML' , {'course' : 'Einführung in Quantum Computing', 'Allowed' :  [3.0]  } , 'I to Surgical Robotics' 
+  ]
 }
 function delete_unnecessary_courses()
 {
@@ -39,7 +40,7 @@ function delete_unnecessary_courses()
   //Please note: Months are represented from 0-11 (January=0, February=1). Ensure dates are correct below before running the script.
   var fromDate = new Date(2022,5,1,0,0,0); 
   var toDate = new Date(2023,2,30,0,0,0);
-  var main_calendarID = 'abc@gmail.com'; //Enter your calendar ID here
+  var main_calendarID = 'yusufani8@gmail.com'; //Enter your calendar ID here
 
   var calendar = CalendarApp.getCalendarById(main_calendarID);
   for(var i=0; i<unwanted_courses.length;i++) //loop through all events
@@ -65,7 +66,9 @@ function delete_unnecessary_courses()
     }
   }
 }
-delete_unnecessary_courses()
+//delete_unnecessary_courses()
+
+
 
 ```
 
@@ -81,51 +84,64 @@ this code will sync your calendar with subscription calendar. After edit the cod
 ```
 
 
-
-
+function fix_course_name(name){
+  // IDK why but after a while cal bruck proxy adds a number to course name. So I delete this.
+  number =name.trim().split(' ')[0] 
+  if (number.length === 10 & isNumeric(number[0])){
+    return name.trim().split(' ').slice(1).join(' ').replace('&amp;','')
+  }else{
+    return name.trim().replace('&amp;','')
+  }
+}
 
 function getDifference(array1, array2) {
   return array1.filter(object1 => {
     return !array2.some(object2 => {
-      return (object1.getStartTime().getTime() === object2.getStartTime().getTime()) && (object1.getTitle() ===object2.getTitle())  ;
+      return (object1.getStartTime().getTime() === object2.getStartTime().getTime()) && (fix_course_name(object1.getTitle()) ===object2.getTitle())  ;
     });
   });
 }
 
 function is_wanted(event){
+  Logger.log('????? COURSE :' + fix_course_name(event.getTitle()))
   var unwanted_courses = get_unwanted_courses()
   for (var j=0; j<unwanted_courses.length;j++){
+    allowed_days = []
     var course = unwanted_courses[j]
-    if (typeof course !== 'object'){
-      if (course.trim().replace('&','') === event.getTitle().trim().replace('&amp','')){
-        return false
-      }
-      else{
-        Logger.log(course.trim() + '---' +event.getTitle().trim() )
-      }
-    }
-    else{
+    if (typeof course === 'object'){
       allowed_days = course.Allowed ;
       course = course.course ;
-      if (allowed_days.indexOf(event.getStartTime().getDay()) === -1.0){
-        return false
+    }
+    if (course.trim().replace('&','') === fix_course_name(event.getTitle())){
+      if(allowed_days.length >0 & allowed_days.indexOf(event.getStartTime().getDay()) === -1.0) {
+          Logger.log('FALSE day not wanted ==================' + course.trim() + '---' +fix_course_name(event.getTitle()) + ' found on '+event.getStartTime() + +'\n\n\n\n')
+          return false
       }
       else{
-        Logger.log('day' + event.getStartTime().getDay())
+        Logger.log('FALSE unwanted name detected ==================' + course.trim() + '---' +fix_course_name(event.getTitle()) +'\n\n\n\n')
+        return false
       }
+    }else{
+      //Logger.log(course.trim().replace('&','')  +' === ' + fix_course_name(event.getTitle()) )
     }
+    
   }
+  Logger.log('✓✓✓✓ COURSE :' + fix_course_name(event.getTitle()))
   return true
 }
-
+function isNumeric(str) {
+  if (typeof str != "string") return false // we only process strings!  
+  return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+         !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+}
 function sync_calendars()
 {
   var unwanted_courses = get_unwanted_courses()
   //Please note: Months are represented from 0-11 (January=0, February=1). Ensure dates are correct below before running the script.
   var fromDate = new Date(2022,10,1,0,0,0); 
-  var toDate = new Date(2023,5,1,0,0,0); 
-  var main_calendarID = 'abc@gmail.com'; //Enter your calendar ID here
-  var tum_calendarID = '9iqouvu................@import.calendar.google.com'
+  var toDate = new Date(2023,5,16,0,0,0); 
+  var main_calendarID = 'yusufani8@gmail.com'; //Enter your calendar ID here
+  var tum_calendarID = '9iqouvu0qg03l54237pnk3qsdeh48tjd@import.calendar.google.com'
 
   var calendar = CalendarApp.getCalendarById(main_calendarID);
   var tum_calendar = CalendarApp.getCalendarById(tum_calendarID);
@@ -140,11 +156,11 @@ function sync_calendars()
   {
     var ev = distinct_events[j];
     if (is_wanted(ev)){
-      Logger.log('Syncronized Event: '+ev.getTitle()+' found on '+ev.getStartTime()  )  ; // Log event name and title
-      calendar.createEvent(ev.getTitle() , ev.getStartTime() , ev.getEndTime(), {'description' : ev.getDescription() , 'location' : ev.getLocation()})
+      Logger.log('Syncronized Event: '+fix_course_name(ev.getTitle())+' found on '+ev.getStartTime() + '\n\n\n' )  ; // Log event name and title
+      calendar.createEvent(fix_course_name(ev.getTitle()) , ev.getStartTime() , ev.getEndTime(), {'description' : ev.getDescription() , 'location' : ev.getLocation()})
     }
-    
   }
 }
 sync_calendars()
+
 ```
