@@ -29,8 +29,14 @@ You can add your courses names in list also you can define allowed date like in 
 ```
 //['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 function get_unwanted_courses(){
-  return  [  'ML','Grundlegende Mathematische Methoden für Imaging und Visualisierung','Cloud-Based Data Processing'
-  ,'3D Scanning & Motion Capture' , 'Fragestunde: ML' , {'course' : 'Einführung in Quantum Computing', 'Allowed' :  [3.0]  } , 'I to Surgical Robotics' 
+  return  [
+  'Master Seminar 3D Vision (IN2107, IN4911)',
+  '821093429 Protein Prediction I for Computer Scientists',
+  'EXs for Protein Prediction I for Computer Scientists',
+  '821093429 Protein Prediction I for Computer Scientists',
+  'Master Seminar 3D Vision (IN2107, IN4911) ',
+  'Master Seminar D Vision (IN, IN) ,'
+  //'Master-Praktikum - Geometrische Szenenanalyse (IN2106, INXXXX)',
   ]
 }
 function delete_unnecessary_courses()
@@ -38,9 +44,10 @@ function delete_unnecessary_courses()
 
   var unwanted_courses = get_unwanted_courses()
   //Please note: Months are represented from 0-11 (January=0, February=1). Ensure dates are correct below before running the script.
-  var fromDate = new Date(2022,5,1,0,0,0); 
-  var toDate = new Date(2023,2,30,0,0,0);
-  var main_calendarID = 'yusufani8@gmail.com'; //Enter your calendar ID here
+  var fromDate = new Date(2023,3,1,0,0,0); 
+  var toDate = new Date(2023,10,16,0,0,0); 
+  //var main_calendarID = '80177307c49167df3b07614992202f33021942daa4d87339d40ec0c87d996c41@group.calendar.google.com'; //Enter your calendar ID here
+  var main_calendarID ='yusufani8@gmail.com'
 
   var calendar = CalendarApp.getCalendarById(main_calendarID);
   for(var i=0; i<unwanted_courses.length;i++) //loop through all events
@@ -66,8 +73,7 @@ function delete_unnecessary_courses()
     }
   }
 }
-//delete_unnecessary_courses()
-
+// delete_unnecessary_courses()
 
 
 ```
@@ -84,7 +90,8 @@ this code will sync your calendar with subscription calendar. After edit the cod
 ```
 
 
-function fix_course_name(name){
+function fix_course_name(name2){
+  name = name2.replace(/[0-9]/g, '');
   // IDK why but after a while cal bruck proxy adds a number to course name. So I delete this.
   number =name.trim().split(' ')[0] 
   if (number.length === 10 & isNumeric(number[0])){
@@ -97,13 +104,15 @@ function fix_course_name(name){
 function getDifference(array1, array2) {
   return array1.filter(object1 => {
     return !array2.some(object2 => {
-      return (object1.getStartTime().getTime() === object2.getStartTime().getTime()) && (fix_course_name(object1.getTitle()) ===object2.getTitle())  ;
+      return (object1.getStartTime().getTime() === object2.getStartTime().getTime()) && (fix_course_name(object1.getTitle()) === fix_course_name(object2.getTitle()))  ;
     });
   });
 }
 
+
+
 function is_wanted(event){
-  Logger.log('????? COURSE :' + fix_course_name(event.getTitle()))
+  //Logger.log('????? COURSE :' + fix_course_name(event.getTitle()))
   var unwanted_courses = get_unwanted_courses()
   for (var j=0; j<unwanted_courses.length;j++){
     allowed_days = []
@@ -126,7 +135,7 @@ function is_wanted(event){
     }
     
   }
-  Logger.log('✓✓✓✓ COURSE :' + fix_course_name(event.getTitle()))
+  //Logger.log('✓✓✓✓ COURSE :' + fix_course_name(event.getTitle()))
   return true
 }
 function isNumeric(str) {
@@ -138,10 +147,10 @@ function sync_calendars()
 {
   var unwanted_courses = get_unwanted_courses()
   //Please note: Months are represented from 0-11 (January=0, February=1). Ensure dates are correct below before running the script.
-  var fromDate = new Date(2022,10,1,0,0,0); 
-  var toDate = new Date(2023,5,16,0,0,0); 
-  var main_calendarID = 'yusufani8@gmail.com'; //Enter your calendar ID here
-  var tum_calendarID = '9iqouvu0qg03l54237pnk3qsdeh48tjd@import.calendar.google.com'
+  var fromDate = new Date(2023,3,1,0,0,0); 
+  var toDate = new Date(2023,10,16,0,0,0); 
+  var main_calendarID = 'YOURCALENDARID@group.calendar.google.com'; //Enter your calendar ID here
+  var tum_calendarID = 'TUMCALENDARID@import.calendar.google.com'
 
   var calendar = CalendarApp.getCalendarById(main_calendarID);
   var tum_calendar = CalendarApp.getCalendarById(tum_calendarID);
@@ -160,6 +169,19 @@ function sync_calendars()
       calendar.createEvent(fix_course_name(ev.getTitle()) , ev.getStartTime() , ev.getEndTime(), {'description' : ev.getDescription() , 'location' : ev.getLocation()})
     }
   }
+
+
+  distinct_events = getDifference(events,tum_events)
+    for(var j=0; j<distinct_events.length;j++) //loop through all events
+    {
+      var ev = distinct_events[j];
+      if (is_wanted(ev)){
+        Logger.log('An event cancelled: '+fix_course_name(ev.getTitle())+' found on '+ev.getStartTime() + '\n\n\n' )  ; // Log event name and title
+        ev.deleteEvent()
+        
+      }
+    }
+
 }
 sync_calendars()
 
