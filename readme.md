@@ -28,7 +28,7 @@ If you run bellow code with your calendar id, you can delete all unwanted course
 You can add your courses names in list also you can define allowed date like in the example. Einführung in Quantum Computing will deleted except for wednesday lecture :D
 ```
 //['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-function get_unwanted_courses(){
+function getUnwantedCourses() {
   return  [
   'Master Seminar 3D Vision (IN2107, IN4911)',
   '821093429 Protein Prediction I for Computer Scientists',
@@ -36,42 +36,89 @@ function get_unwanted_courses(){
   '821093429 Protein Prediction I for Computer Scientists',
   'Master Seminar 3D Vision (IN2107, IN4911) ',
   'Master Seminar D Vision (IN, IN) ,'
+  //'ML',
+  //'Grundlegende Mathematische Methoden für Imaging und Visualisierung',
+  //'Cloud-Based Data Processing',
+  //'3D Scanning & Motion Capture' ,
+  //'Fragestunde: ML' , {'course' : 'Einführung in Quantum Computing', 'Allowed' :  [3.0, 4.0]  } ,
+  //'I to Surgical Robotics'  ,
+  //'Computer Vision III: Detektion, Segmentierung und Tracking (Prüfung)' ,
+  //'Computer Vision II: Multiple View Geometry' , 
+  //'821093429 Protein Prediction I for Computer Scientists' ,
+  //'821093429 Protein Prediction I for Computer Scientists' , 
+  //'Advanced Natural Language Processing (CIT4230002) ,' , 
+  //'EX for Protein Prediction I for Computer Scientists' , 
+  //'Deutsch als Fremdsprache A1.2 , Meuschel (MUC Präsenz)' , 
+  //'Protein Prediction I for Computer Scientists' , 
+  //'EXs for Protein Prediction I for Computer Scientists',
+  //'Deutsch als Fremdsprache A1.2 , Menck-Zwick MO',
+  //'Deutsch als Fremdsprache A1.2 , Kummer-Rock (MUC Präsenz)',
+  //'Deutsch als Fremdsprache A1.2 , Thiessen (MUC Präsenz)',
+  //'Master Seminar: 3D Machine Learning (IN2107, IN4429) ,',
+  //'Master-Praktikum - Lernbasierte Ansätze für autonome Fahrzeuge und intelligente Systeme',
+  //'Master-Praktikum - Advanced Topics in 3D Computer Vision',
+  //'Deutsch als Fremdsprache A1.2 , Reulein (MUC Präsenz/Online)',
+  //'Natural Language Processing - Verfahren und Anwendungen (IN2107, IN4816) ,',
+  //'Master-Seminar - Diffusion Modelle zur Bildgenerierung (IN2107, IN45005) ,',
+  //'Master-Seminar - Diffusion Modelle zur Bildgenerierung (IN2107, INXXXX)',
+  //'Master-Seminar - Diffusion Modelle zur Bildgenerierung (IN2107, INXXXX) ,',
+  //'Deutsch als Fremdsprache A1.2 , Pinskaia DO (MUC Präsenz)',
+  //'Deutsch als Fremdsprache A1.2 , Khvintelani',
+  //'Master Lab Course - Ethical AI: Problems and Applications',
+  //'Master Lab Course – Ethical AI: Problems and Applications',
+  //'Deutsch als Fremdsprache A1.2 , Lechle (GAR Präsenz)',
+  //'Master-Seminar - Diffusion Modelle zur Bildgenerierung (IN2107, INXXXX)',
+  //'Deutsch als Fremdsprache A1.2 , Zerfass',
+  //'Deutsch als Fremdsprache A1.2 , Schlüter (MUC Hybrid/Online)',
+  //'Master-Seminar: Interpretable AI in Medical Imaging (IN2107, IN45009) ,',
+  //'Master-Seminar: Interpretable AI in Medical Imaging',
+  //'Master Seminar 3D Vision (IN2107, IN4911) ,',
+  //'Deutsch als Fremdsprache A1.2 , Menck-Zwick MI',
+  //'Deutsch als Fremdsprache A1.2 , Hanke (GAR Präsenz)',
+  //'Deutsch als Fremdsprache A1.2 , Jennert (MUC Präsenz)',
+  //'Deutsch als Fremdsprache A1.2 , Pinskaia MO (MUC Präsenz)',
+  //'Seminar - Recent Trends in 3D Computer Vision',
+  //'Seminar - Recent Trends in 3D Computer Vision (IN0014, IN2107, IN4826) ,',
+  //'Entwicklungspraktikum NLP-based Software Engineering (IN2106, IN2129) ,,',
+  //'Entwicklungspraktikum NLP-based Software Engineering',
   //'Master-Praktikum - Geometrische Szenenanalyse (IN2106, INXXXX)',
-  ]
+  ];
 }
-function delete_unnecessary_courses()
-{
 
-  var unwanted_courses = get_unwanted_courses()
-  //Please note: Months are represented from 0-11 (January=0, February=1). Ensure dates are correct below before running the script.
-  var fromDate = new Date(2023,3,1,0,0,0); 
-  var toDate = new Date(2023,10,16,0,0,0); 
-  //var main_calendarID = '80177307c49167df3b07614992202f33021942daa4d87339d40ec0c87d996c41@group.calendar.google.com'; //Enter your calendar ID here
-  var main_calendarID ='yusufani8@gmail.com'
+function logAndDeleteEvent(ev) {
+  Logger.log('Deleting event: ' + ev.getTitle() + ' on ' + ev.getStartTime());
+  ev.deleteEvent();
+}
 
-  var calendar = CalendarApp.getCalendarById(main_calendarID);
-  for(var i=0; i<unwanted_courses.length;i++) //loop through all events
-  {
-    var course = unwanted_courses[i];
-    var allowed_days = []
-    if (typeof course === 'object'){
-      allowed_days = course.Allowed ;
-      course = course.course ;
+function logAndKeepEvent(ev) {
+  Logger.log('Keeping event: ' + ev.getTitle() + ' on ' + ev.getStartTime());
+}
+
+function deleteUnnecessaryCourses() {
+  const unwantedCourses = getUnwantedCourses();
+  const fromDate = new Date(2023, 3, 1);
+  const toDate = new Date(2023, 10, 16);
+  const calendarId = 'yusufani8@gmail.com';
+  const calendar = CalendarApp.getCalendarById(calendarId);
+
+  unwantedCourses.forEach(course => {
+    let allowedDays = [];
+    if (typeof course === 'object') {
+      allowedDays = course.Allowed;
+      course = course.course;
     }
-    //Search for events between fromdate and todate with given search criteria
-    var events = calendar.getEvents(fromDate, toDate,{search: course});
-    for(var j=0; j<events.length;j++) //loop through all events
-    {
-      var ev = events[j];
-      //if (ev.getTitle().*
-      if (allowed_days !== [] && (allowed_days.indexOf(ev.getStartTime().getDay()) === -1.0)){
-          Logger.log('deleted event: '+ev.getTitle()+' found on '+ev.getStartTime()   )  ; // Log event name and title
-          ev.deleteEvent(); // delete event
-      }else {
-        Logger.log('NOT DELETED Event: '+ev.getTitle()+' found on '+ev.getStartTime()  )  ; // Log event name and title
+    const events = calendar.getEvents(fromDate, toDate, {search: course});
+
+    events.forEach(ev => {
+      if (allowedDays.length && !allowedDays.includes(ev.getStartTime().getDay())) {
+        logAndDeleteEvent(ev);
+      } else {
+        logAndKeepEvent(ev);
       }
-    }
-  }
+    });
+  });
+
+  Logger.log('Course deletion process completed.');
 }
 // delete_unnecessary_courses()
 
@@ -90,99 +137,90 @@ this code will sync your calendar with subscription calendar. After edit the cod
 ```
 
 
-function fix_course_name(name2){
-  name = name2.replace(/[0-9]/g, '');
-  // IDK why but after a while cal bruck proxy adds a number to course name. So I delete this.
-  number =name.trim().split(' ')[0] 
-  if (number.length === 10 & isNumeric(number[0])){
-    return name.trim().split(' ').slice(1).join(' ').replace('&amp;','')
-  }else{
-    return name.trim().replace('&amp;','')
+
+function isNumeric(str) {
+  return !isNaN(str) && !isNaN(parseFloat(str));
+}
+
+function fixCourseName(name) {
+  let fixedName = name.replace(/[0-9]/g, '').trim();
+  const firstWord = fixedName.split(' ')[0];
+
+  if (firstWord.length === 10 && isNumeric(firstWord[0])) {
+    fixedName = fixedName.split(' ').slice(1).join(' ');
   }
+  return fixedName.replace('&amp;', '');
 }
 
 function getDifference(array1, array2) {
-  return array1.filter(object1 => {
-    return !array2.some(object2 => {
-      return (object1.getStartTime().getTime() === object2.getStartTime().getTime()) && (fix_course_name(object1.getTitle()) === fix_course_name(object2.getTitle()))  ;
+  return array1.filter(event1 => {
+    return !array2.some(event2 => {
+      return event1.getStartTime().getTime() === event2.getStartTime().getTime() &&
+             fixCourseName(event1.getTitle()) === fixCourseName(event2.getTitle());
     });
   });
 }
 
+function isWanted(event, unwantedCourses) {
+  const eventName = fixCourseName(event.getTitle());
 
+  for (const course of unwantedCourses) {
+    let allowedDays = [];
+    let courseName = course;
 
-function is_wanted(event){
-  //Logger.log('????? COURSE :' + fix_course_name(event.getTitle()))
-  var unwanted_courses = get_unwanted_courses()
-  for (var j=0; j<unwanted_courses.length;j++){
-    allowed_days = []
-    var course = unwanted_courses[j]
-    if (typeof course === 'object'){
-      allowed_days = course.Allowed ;
-      course = course.course ;
+    if (typeof course === 'object') {
+      allowedDays = course.Allowed;
+      courseName = course.course;
     }
-    if (course.trim().replace('&','') === fix_course_name(event.getTitle())){
-      if(allowed_days.length >0 & allowed_days.indexOf(event.getStartTime().getDay()) === -1.0) {
-          Logger.log('FALSE day not wanted ==================' + course.trim() + '---' +fix_course_name(event.getTitle()) + ' found on '+event.getStartTime() + +'\n\n\n\n')
-          return false
+
+    if (courseName.trim().replace('&', '') === eventName) {
+      if (allowedDays.length && !allowedDays.includes(event.getStartTime().getDay())) {
+        return false;
       }
-      else{
-        Logger.log('FALSE unwanted name detected ==================' + course.trim() + '---' +fix_course_name(event.getTitle()) +'\n\n\n\n')
-        return false
-      }
-    }else{
-      //Logger.log(course.trim().replace('&','')  +' === ' + fix_course_name(event.getTitle()) )
-    }
-    
-  }
-  //Logger.log('✓✓✓✓ COURSE :' + fix_course_name(event.getTitle()))
-  return true
-}
-function isNumeric(str) {
-  if (typeof str != "string") return false // we only process strings!  
-  return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-         !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
-}
-function sync_calendars()
-{
-  var unwanted_courses = get_unwanted_courses()
-  //Please note: Months are represented from 0-11 (January=0, February=1). Ensure dates are correct below before running the script.
-  var fromDate = new Date(2023,3,1,0,0,0); 
-  var toDate = new Date(2023,10,16,0,0,0); 
-  var main_calendarID = 'YOURCALENDARID@group.calendar.google.com'; //Enter your calendar ID here
-  var tum_calendarID = 'TUMCALENDARID@import.calendar.google.com'
-
-  var calendar = CalendarApp.getCalendarById(main_calendarID);
-  var tum_calendar = CalendarApp.getCalendarById(tum_calendarID);
-
-
-  //Search for events between fromdate and todate with given search criteria
-  var events = calendar.getEvents(fromDate, toDate);
-  var tum_events = tum_calendar.getEvents(fromDate, toDate);
-  Logger.log('Getting distincts')
-  distinct_events = getDifference(tum_events,events)
-  for(var j=0; j<distinct_events.length;j++) //loop through all events
-  {
-    var ev = distinct_events[j];
-    if (is_wanted(ev)){
-      Logger.log('Syncronized Event: '+fix_course_name(ev.getTitle())+' found on '+ev.getStartTime() + '\n\n\n' )  ; // Log event name and title
-      calendar.createEvent(fix_course_name(ev.getTitle()) , ev.getStartTime() , ev.getEndTime(), {'description' : ev.getDescription() , 'location' : ev.getLocation()})
     }
   }
-
-
-  distinct_events = getDifference(events,tum_events)
-    for(var j=0; j<distinct_events.length;j++) //loop through all events
-    {
-      var ev = distinct_events[j];
-      if (is_wanted(ev)){
-        Logger.log('An event cancelled: '+fix_course_name(ev.getTitle())+' found on '+ev.getStartTime() + '\n\n\n' )  ; // Log event name and title
-        ev.deleteEvent()
-        
-      }
-    }
-
+  return true;
 }
-sync_calendars()
+
+function syncCalendars() {
+  const fromDate = new Date(2023, 8, 1);
+  const toDate = new Date(2024, 4, 16);
+  const mainCalendarId = 'yourmaincalendarid@group.calendar.google.com'; //Enter your final target calendar ID here
+  const tumCalendarId = 'yourtumcalendarid@import.calendar.google.com' ; // Subsrice a calendar with cal.bruck url in google calendar and get this
+
+
+  const mainCalendar = CalendarApp.getCalendarById(mainCalendarId);
+  const tumCalendar = CalendarApp.getCalendarById(tumCalendarId);
+
+  const mainEvents = mainCalendar.getEvents(fromDate, toDate);
+  const tumEvents = tumCalendar.getEvents(fromDate, toDate);
+  Logger.log('Number of tum events' + tumEvents.length)
+
+  const unwantedCourses = getUnwantedCourses();
+
+  const distinctTumEvents = getDifference(tumEvents, mainEvents);
+  distinctTumEvents.forEach(ev => {
+    if (isWanted(ev, unwantedCourses)) {
+      Logger.log('Synchronizing event: ' + ev.getTitle());
+      mainCalendar.createEvent(fixCourseName(ev.getTitle()), ev.getStartTime(), ev.getEndTime(), {
+        'description': ev.getDescription(),
+        'location': ev.getLocation()
+      });
+    }
+  });
+
+  const distinctMainEvents = getDifference(mainEvents, tumEvents);
+  distinctMainEvents.forEach(ev => {
+    if (!isWanted(ev, unwantedCourses)) {
+      Logger.log('Deleting canceled event: ' + ev.getTitle());
+      ev.deleteEvent();
+    }
+  });
+
+  Logger.log('Calendar synchronization completed.');
+}
+
+syncCalendars();
+```
 
 ```
