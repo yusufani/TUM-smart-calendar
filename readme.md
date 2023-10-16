@@ -98,7 +98,7 @@ function deleteUnnecessaryCourses() {
   const unwantedCourses = getUnwantedCourses();
   const fromDate = new Date(2023, 3, 1);
   const toDate = new Date(2023, 10, 16);
-  const calendarId = 'yusufani8@gmail.com';
+  const calendarId = 'yourmail@gmail.com';
   const calendar = CalendarApp.getCalendarById(calendarId);
 
   unwantedCourses.forEach(course => {
